@@ -1,0 +1,413 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CGPA Predictor</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600&display=swap" rel="stylesheet">
+
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  background: #07080f;
+  min-height: 100vh;
+  font-family: 'DM Sans', sans-serif;
+  display: flex;
+  justify-content: center;
+  padding: 2.5rem 1.5rem 4rem;
+}
+
+.wrapper {
+  width: 100%;
+  max-width: 480px;
+}
+
+/* ── HEADER ── */
+.header {
+  text-align: center;
+  margin-bottom: 2rem;
+}
+
+.header-label {
+  font-family: 'Space Mono', monospace;
+  font-size: 11px;
+  letter-spacing: 0.2em;
+  color: #c8f542;
+  text-transform: uppercase;
+  margin-bottom: 0.5rem;
+}
+
+.header-title {
+  font-size: 30px;
+  font-weight: 600;
+  color: #eef0f8;
+  line-height: 1.1;
+}
+
+.header-title span { color: #c8f542; }
+
+/* ── TABS ── */
+.tabs {
+  display: flex;
+  background: #0d1017;
+  border: 0.5px solid #1e2330;
+  border-radius: 10px;
+  padding: 4px;
+  margin-bottom: 1.5rem;
+  gap: 4px;
+}
+
+.tab {
+  flex: 1;
+  padding: 10px 0;
+  cursor: pointer;
+  border-radius: 7px;
+  text-align: center;
+  font-size: 13.5px;
+  font-weight: 500;
+  color: #4a546e;
+  transition: background 0.18s, color 0.18s;
+  user-select: none;
+}
+
+.tab.active {
+  background: #c8f542;
+  color: #0a0c12;
+}
+
+/* ── PANELS ── */
+.panel { display: none; }
+.panel.active { display: block; }
+
+/* ── CARDS ── */
+.card {
+  background: #0d1017;
+  border: 0.5px solid #1a2030;
+  border-radius: 12px;
+  padding: 1.25rem;
+  margin-bottom: 1rem;
+}
+
+.section-title {
+  font-family: 'Space Mono', monospace;
+  font-size: 10px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: #5d6370;
+  margin-bottom: 0.85rem;
+}
+
+/* ── FORM FIELDS ── */
+.grid-2 {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.field-label {
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: #5d6370;
+}
+
+input[type="text"],
+input[type="number"],
+input[type="file"] {
+  width: 100%;
+  padding: 9px 12px;
+  background: #070a10;
+  border: 0.5px solid #1a2030;
+  border-radius: 7px;
+  color: #d0d5e8;
+  font-size: 14px;
+  font-family: 'DM Sans', sans-serif;
+  outline: none;
+  transition: border-color 0.15s;
+}
+
+input:focus { border-color: #c8f542; }
+
+input.mono-out {
+  color: #c8f542;
+  font-family: 'Space Mono', monospace;
+  font-size: 13px;
+}
+
+input[type="file"] {
+  cursor: pointer;
+  color: #4a546e;
+  font-size: 13px;
+}
+
+input[type="file"]::file-selector-button {
+  background: #141924;
+  border: none;
+  border-radius: 5px;
+  color: #c8f542;
+  font-size: 12px;
+  padding: 5px 12px;
+  margin-right: 10px;
+  cursor: pointer;
+  font-family: 'DM Sans', sans-serif;
+}
+
+/* ── BUTTON ── */
+.predict-btn {
+  width: 100%;
+  padding: 13px;
+  background: #c8f542;
+  border: none;
+  border-radius: 10px;
+  font-size: 14px;
+  font-weight: 600;
+  color: #0a0c12;
+  cursor: pointer;
+  letter-spacing: 0.02em;
+  font-family: 'DM Sans', sans-serif;
+  transition: opacity 0.15s, transform 0.1s;
+  margin-top: 0.25rem;
+}
+
+.predict-btn:hover { opacity: 0.88; }
+.predict-btn:active { transform: scale(0.985); }
+
+/* ── RESULT ── */
+.result-card {
+  background: #0d1017;
+  border: 0.5px solid #1a2030;
+  border-radius: 12px;
+  padding: 1.75rem 1.5rem 1.5rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  margin-top: 0;
+}
+
+.result-label {
+  font-family: 'Space Mono', monospace;
+  font-size: 10px;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: #5d6370;
+}
+
+.result-num {
+  font-family: 'Space Mono', monospace;
+  font-size: 58px;
+  font-weight: 700;
+  color: #c8f542;
+  letter-spacing: -0.03em;
+  line-height: 1;
+  transition: color 0.3s;
+}
+
+.result-num.empty { color: #141924; }
+
+.bar-wrap {
+  width: 100%;
+  margin-top: 6px;
+}
+
+.bar-bg {
+  width: 100%;
+  height: 3px;
+  background: #141924;
+  border-radius: 2px;
+  overflow: hidden;
+}
+
+.bar-fill {
+  height: 100%;
+  background: #c8f542;
+  border-radius: 2px;
+  width: 0%;
+  transition: width 0.7s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.spacer { height: 1rem; }
+</style>
+</head>
+
+<body>
+<div class="wrapper">
+
+  <!-- HEADER -->
+  <div class="header">
+    <div class="header-label">Grade Predictor</div>
+    <div class="header-title">Predict your <span>CGPA</span></div>
+  </div>
+
+  <!-- TABS -->
+  <div class="tabs">
+    <div class="tab active" id="tab-upload" onclick="switchTab('upload')">Upload PDF</div>
+    <div class="tab" id="tab-manual" onclick="switchTab('manual')">Manual Input</div>
+  </div>
+
+  <!-- ── UPLOAD PANEL ── -->
+  <div class="panel active" id="panel-upload">
+    <div class="card">
+      <div class="section-title">Grade Sheet PDF</div>
+      <input type="file" id="file" accept=".pdf">
+    </div>
+    <button class="predict-btn" onclick="upload()">Predict from PDF</button>
+  </div>
+
+  <!-- ── MANUAL PANEL ── -->
+  <div class="panel" id="panel-manual">
+
+    <div class="card">
+      <div class="section-title">Semester SGPAs</div>
+      <div class="grid-2">
+        <div class="field">
+          <div class="field-label">Semester 1</div>
+          <input type="number" id="S1" placeholder="0.00" step="0.01" min="0" max="10">
+        </div>
+        <div class="field">
+          <div class="field-label">Semester 2</div>
+          <input type="number" id="S2" placeholder="0.00" step="0.01" min="0" max="10">
+        </div>
+        <div class="field">
+          <div class="field-label">Semester 3</div>
+          <input type="number" id="S3" placeholder="0.00" step="0.01" min="0" max="10">
+        </div>
+        <div class="field">
+          <div class="field-label">Semester 4</div>
+          <input type="number" id="S4" placeholder="0.00" step="0.01" min="0" max="10">
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="section-title">Grade Counts</div>
+      <div class="grid-2">
+        <div class="field">
+          <div class="field-label">FF count</div>
+          <input type="number" id="FF" placeholder="0" min="0">
+        </div>
+        <div class="field">
+          <div class="field-label">AA count</div>
+          <input type="number" id="AA" placeholder="0" min="0">
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="section-title">Subject Grades</div>
+      <div class="grid-2" style="margin-bottom: 10px;">
+        <div class="field">
+          <div class="field-label">Math grades</div>
+          <input type="text" id="mathGrades" placeholder="AA AB BB …">
+        </div>
+        <div class="field">
+          <div class="field-label">Avg math</div>
+          <input type="text" id="mathAvg" class="mono-out" readonly placeholder="—">
+        </div>
+      </div>
+      <div class="grid-2">
+        <div class="field">
+          <div class="field-label">Hard subjects (Chemistry, Physics, SNS, DSP)</div>
+          <input type="text" id="hardGrades" placeholder="AA BC AB …">
+        </div>
+        <div class="field">
+          <div class="field-label">Avg hard</div>
+          <input type="text" id="hardAvg" class="mono-out" readonly placeholder="—">
+        </div>
+      </div>
+    </div>
+
+    <button class="predict-btn" onclick="manualPredict()">Predict CGPA</button>
+  </div>
+
+  <div class="spacer"></div>
+
+  <!-- RESULT -->
+  <div class="result-card">
+    <div class="result-label">Predicted CGPA</div>
+    <div class="result-num empty" id="result">—</div>
+    <div class="bar-wrap">
+      <div class="bar-bg">
+        <div class="bar-fill" id="bar"></div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<script>
+const GRADE_MAP = { AA:10, AB:9, BB:8, BC:7, CC:6, CD:5, DD:4, FF:0 };
+
+function switchTab(mode) {
+  ['upload','manual'].forEach(m => {
+    document.getElementById('panel-' + m).classList.toggle('active', m === mode);
+    document.getElementById('tab-' + m).classList.toggle('active', m === mode);
+  });
+}
+
+function calculateAverage(inputId, outputId) {
+  const text = document.getElementById(inputId).value.toUpperCase();
+  const grades = text.trim().split(/\s+/);
+  let sum = 0, count = 0;
+  grades.forEach(g => { if (GRADE_MAP[g] !== undefined) { sum += GRADE_MAP[g]; count++; } });
+  document.getElementById(outputId).value = count ? (sum / count).toFixed(2) : '';
+}
+
+document.getElementById('mathGrades').addEventListener('input', () => calculateAverage('mathGrades', 'mathAvg'));
+document.getElementById('hardGrades').addEventListener('input', () => calculateAverage('hardGrades', 'hardAvg'));
+
+function showResult(val) {
+  const el = document.getElementById('result');
+  const bar = document.getElementById('bar');
+  el.textContent = val.toFixed(2);
+  el.classList.remove('empty');
+  bar.style.width = Math.min((val / 10) * 100, 100) + '%';
+}
+
+async function upload() {
+  const fileInput = document.getElementById('file');
+  if (!fileInput.files.length) { alert('Please select a PDF file'); return; }
+  const formData = new FormData();
+  formData.append('file', fileInput.files[0]);
+  try {
+    const res = await fetch('http://127.0.0.1:8000/predict', { method: 'POST', body: formData });
+    const data = await res.json();
+    if (data.error) { alert(data.error); return; }
+    showResult(data.predicted_cgpa);
+  } catch(e) { alert('Could not reach prediction server.'); }
+}
+
+async function manualPredict() {
+  const payload = {
+    S1_SGPA: parseFloat(document.getElementById('S1').value) || 0,
+    S2_SGPA: parseFloat(document.getElementById('S2').value) || 0,
+    S3_SGPA: parseFloat(document.getElementById('S3').value) || 0,
+    S4_SGPA: parseFloat(document.getElementById('S4').value) || 0,
+    num_FF:  parseInt(document.getElementById('FF').value)  || 0,
+    num_AA:  parseInt(document.getElementById('AA').value)  || 0,
+    avg_grade_math:          parseFloat(document.getElementById('mathAvg').value) || 0,
+    avg_grade_hard_subjects: parseFloat(document.getElementById('hardAvg').value) || 0
+  };
+  try {
+    const res = await fetch('http://127.0.0.1:8000/predict_manual', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload)
+    });
+    const data = await res.json();
+    if (data.error) { alert(data.error); return; }
+    showResult(data.predicted_cgpa);
+  } catch(e) { alert('Could not reach prediction server.'); }
+}
+</script>
+</body>
+</html>
