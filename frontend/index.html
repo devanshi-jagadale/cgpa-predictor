@@ -379,7 +379,7 @@ async function upload() {
   const formData = new FormData();
   formData.append('file', fileInput.files[0]);
   try {
-    const res = await fetch('http://127.0.0.1:8000/predict', { method: 'POST', body: formData });
+    const res = await fetch('https://cgpa-predictor-fnbc.onrender.com/predict', { method: 'POST', body: formData });
     const data = await res.json();
     if (data.error) { alert(data.error); return; }
     showResult(data.predicted_cgpa);
@@ -398,7 +398,7 @@ async function manualPredict() {
     avg_grade_hard_subjects: parseFloat(document.getElementById('hardAvg').value) || 0
   };
   try {
-    const res = await fetch('http://127.0.0.1:8000/predict_manual', {
+    const res = await fetch('https://cgpa-predictor-fnbc.onrender.com/predict_manual', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(payload)
