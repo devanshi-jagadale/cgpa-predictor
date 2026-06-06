@@ -2,9 +2,6 @@
 __pycache__/
 *.pyc
 
-# Models
-*.pkl
-
 # Data (optional)
 data/*.csv
 
